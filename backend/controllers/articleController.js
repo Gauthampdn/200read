@@ -4,21 +4,37 @@ const mongoose = require("mongoose");
 // Get today's article
 const getTodayArticle = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    console.log('Starting getTodayArticle...');
+    
+    // Get all articles first to see what we're working with
+    const allArticles = await Article.find({}).sort({ dateCreated: -1 });
+    console.log('All articles:', allArticles.map(a => ({
+      id: a._id,
+      name: a.name,
+      dateCreated: a.dateCreated
+    })));
 
-    const article = await Article.findOne({
-      dateCreated: {
-        $gte: today
-      }
-    });
+    // Find the most recent article
+    const article = await Article.findOne()
+      .sort({ dateCreated: -1 })  // Sort by date in descending order
+      .limit(1);                  // Get only one article
+
+    console.log('Most recent article found:', article);
 
     if (!article) {
-      return res.status(404).json({ error: "No article for today" });
+      console.log('No article found');
+      return res.status(404).json({ error: "No article found" });
     }
+
+    console.log('Sending article:', {
+      id: article._id,
+      name: article.name,
+      dateCreated: article.dateCreated
+    });
 
     res.status(200).json(article);
   } catch (error) {
+    console.error('Error in getTodayArticle:', error);
     res.status(500).json({ error: error.message });
   }
 };

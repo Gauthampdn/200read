@@ -2,6 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const clerkClient = require('@clerk/express');
+
+// Initialize Clerk with the secret key
 
 // Import routes
 const articleRoutes = require("./routes/articles");
@@ -13,7 +16,7 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'your-production-domain.com'],
+  origin: ['http://localhost:8081', 'your-production-domain.com', 'http://localhost:3000'],
   credentials: true
 }));
 
@@ -29,11 +32,21 @@ app.use("/api/subscriptions", subscriptionRoutes);
 
 // connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
+    console.log("Successfully connected to MongoDB.");
+    
+    // Properly await the collections list
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log("Database contains these collections:", collections);
+    
+    // Let's also check if our Articles collection exists and has documents
+    const articlesCount = await mongoose.connection.db.collection('articles').countDocuments();
+    console.log("Number of articles in database:", articlesCount);
+    
     app.listen(process.env.PORT, () => {
       console.log("Connected to DB and listening on port " + process.env.PORT);
     });
   })
   .catch((err) => {
-    console.log(err);
+    console.log("MongoDB connection error:", err);
   }); 

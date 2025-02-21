@@ -9,9 +9,12 @@ export default function TodayScreen() {
   const { data: article, isLoading } = useQuery({
     queryKey: ['todayArticle'],
     queryFn: async () => {
+      console.log('Fetching today article...');
       const response = await fetch('http://localhost:4000/api/articles/today');
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+      return data;
     },
   });
 

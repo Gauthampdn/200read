@@ -1,4 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const clerk = require('@clerk/clerk-sdk-node');
 const Subscription = require('../models/subscriptionModel');
 
 // Create a subscription
@@ -32,11 +33,19 @@ const createSubscription = async (req, res) => {
       endDate: new Date(subscription.current_period_end * 1000)
     });
 
+    // Update Clerk user metadata
+    await clerk.users.updateUser(userId, {
+      publicMetadata: {
+        isPro: true
+      }
+    });
+
     res.json({
       subscriptionId: subscription.id,
       clientSecret: subscription.latest_invoice.payment_intent.client_secret,
     });
   } catch (error) {
+    console.error('Subscription error:', error);
     res.status(500).json({ error: error.message });
   }
 };
