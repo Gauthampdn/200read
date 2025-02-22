@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 
 export default function ArticlesScreen() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
   
   // Check if user is pro (you'll need to set this metadata in Clerk)
@@ -13,11 +13,15 @@ export default function ArticlesScreen() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ['pastWeekArticles'],
     queryFn: async () => {
-      console.log('Fetching articles...');
-      const response = await fetch('http://localhost:4000/api/articles/past-week');
-      console.log('Response status:', response.status);
+      const token = await getToken();
+      const response = await fetch('http://localhost:4000/api/articles/past-week', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch articles');
       const data = await response.json();
-      console.log('Articles fetched:', data.length);
       
       // If not pro, limit to 7 articles
       if (!isPro && data.length > 7) {
@@ -25,7 +29,7 @@ export default function ArticlesScreen() {
       }
       return data;
     },
-    enabled: isSignedIn, // Only fetch if user is signed in
+    enabled: isSignedIn,
   });
 
   if (!isSignedIn) {
@@ -54,13 +58,13 @@ export default function ArticlesScreen() {
 
   return (
     <View style={styles.container}>
-      {!isPro && (
+      {/* {!isPro && (
         <View style={styles.proPrompt}>
           <Text style={styles.proText}>
             Upgrade to Pro to access all archived articles
           </Text>
         </View>
-      )}
+      )} */}
       
       <FlatList
         data={articles}
@@ -93,32 +97,23 @@ export default function ArticlesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1A1A1A',
   },
   message: {
     textAlign: 'center',
     fontSize: 16,
-    color: '#666',
+    color: '#999',
     marginTop: 20,
-  },
-  proPrompt: {
-    backgroundColor: '#f0f8ff',
-    padding: 15,
-    margin: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  proText: {
-    textAlign: 'center',
-    color: '#007AFF',
-    fontSize: 14,
   },
   articleCard: {
     flexDirection: 'row',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#333',
+    backgroundColor: '#2C2C2E',
+    marginBottom: 10,
+    marginHorizontal: 10,
+    borderRadius: 12,
   },
   thumbnail: {
     width: 100,
@@ -133,15 +128,29 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#FFFFFF',
     marginBottom: 5,
   },
   date: {
-    color: '#666',
+    color: '#999',
     marginBottom: 5,
   },
   description: {
-    color: '#444',
+    color: '#CCCCCC',
     fontSize: 14,
     lineHeight: 20,
+  },
+  proPrompt: {
+    backgroundColor: '#2C2C2E',
+    padding: 15,
+    margin: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#0A84FF',
+  },
+  proText: {
+    textAlign: 'center',
+    color: '#0A84FF',
+    fontSize: 14,
   },
 }); 

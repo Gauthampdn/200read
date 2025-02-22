@@ -5,8 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
-// Get the publishable key from Expo's environment system
-const publishableKey = "pk_test_bmF0dXJhbC1zdGFybGluZy04Mi5jbGVyay5hY2NvdW50cy5kZXYk";
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string;
 
 if (!publishableKey) {
   throw new Error("Missing Publishable Key");

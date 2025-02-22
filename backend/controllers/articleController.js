@@ -1,18 +1,12 @@
 const Article = require("../models/articleModel");
 const mongoose = require("mongoose");
+const { clerkClient, getAuth } = require('@clerk/express')
+
 
 // Get today's article
 const getTodayArticle = async (req, res) => {
   try {
     console.log('Starting getTodayArticle...');
-    
-    // Get all articles first to see what we're working with
-    const allArticles = await Article.find({}).sort({ dateCreated: -1 });
-    console.log('All articles:', allArticles.map(a => ({
-      id: a._id,
-      name: a.name,
-      dateCreated: a.dateCreated
-    })));
 
     // Find the most recent article
     const article = await Article.findOne()
@@ -42,17 +36,26 @@ const getTodayArticle = async (req, res) => {
 // Get past week's articles (requires auth)
 const getPastWeekArticles = async (req, res) => {
   try {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
-    const articles = await Article.find({
-      dateCreated: {
-        $gte: sevenDaysAgo
-      }
-    }).sort({ dateCreated: -1 });
+    // Just get the most recent articles, ignoring the year
+    const articles = await Article.find()
+      .sort({ dateCreated: -1 })
+      .limit(7);  // Limit to 7 articles
+
+    console.log("Found articles:", articles.length);
+    console.log("Article dates:", articles.map(a => ({
+      name: a.name,
+      date: a.dateCreated
+    })));
 
     res.status(200).json(articles);
   } catch (error) {
+    console.error('Error fetching articles:', error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -1,4 +1,5 @@
 const express = require("express");
+const { requireAuth } = require('@clerk/express');
 const {
   getTodayArticle,
   getPastWeekArticles,
@@ -11,8 +12,9 @@ const router = express.Router();
 // Public routes
 router.get("/today", getTodayArticle);
 
-// Protected routes (will add auth middleware later)
-router.get("/past-week", getPastWeekArticles);
+// Protected route with auth check
+router.get("/past-week", requireAuth(), getPastWeekArticles);
+
 router.post("/:id/like", likeArticle);
 
 // Test route to create a sample article

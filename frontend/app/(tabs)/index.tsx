@@ -29,7 +29,7 @@ export default function TodayScreen() {
   return (
     <ScrollView style={styles.container}>
       <Image 
-        source={{ uri: article?.image || 'https://via.placeholder.com/400x200' }}
+        source={{ uri: 'https://cdn.dribbble.com/userupload/14054242/file/original-785af21777959a668133ec1a22708f39.png' }}
         style={styles.image}
       />
       <View style={styles.content}>
@@ -55,42 +55,43 @@ export default function TodayScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1A1A1A',
   },
   content: {
     padding: 20,
   },
   image: {
-    width: '100%',
-    height: 200,
+    height: "100%",
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   date: {
-    color: '#666',
+    color: '#999',
     marginBottom: 12,
   },
   description: {
     fontSize: 16,
-    color: '#444',
+    color: '#CCCCCC',
     marginBottom: 16,
   },
   text: {
     fontSize: 16,
     lineHeight: 24,
+    color: '#FFFFFF',
     marginBottom: 20,
   },
   signInPrompt: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2C2C2E',
     borderRadius: 8,
   },
   promptText: {
     textAlign: 'center',
-    color: '#666',
+    color: '#999',
   },
 }); 
